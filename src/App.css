@@ -7,3 +7,9 @@
     box-sizing: content-box;
     overflow: hidden;
 }
+.cursor_pos{
+    max-width: 1920px;
+    max-height: 1080px;
+    width: 95vw;
+    height: 95vh;
+}
