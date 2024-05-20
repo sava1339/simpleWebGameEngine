@@ -37,11 +37,26 @@ arrayOfObject.physicalObject.push(new PhysicalObject({
 },{
     isSolid: true,
 }));
+
+arrayOfObject.physicalObject.push(new PhysicalObject({
+    objWidth: 2020,
+    objHeight: 150,
+    x: 0,
+    y: 1000,
+    unitX: "px",
+    unitY: "px",
+    color: "#4a1010",
+    objPos: "bottom",
+    img:""
+},{
+    isSolid: true,
+}));
+
 arrayOfObject.physicalObject.push(new PhysicalObject({
     objWidth: 250,
     objHeight: 50,
-    x: 700,
-    y: 300,
+    x: 500,
+    y: 400,
     unitX: "px",
     unitY: "px",
     color: "#3b3b1a",

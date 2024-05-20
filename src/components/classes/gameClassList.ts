@@ -159,6 +159,7 @@ export class Player extends PhysicalObject{
                 arrayOfObject.player.move = false;
                 this.canJump = true;
                 this.fallMultiplier = 0;
+                return;
             }
             //отталкивание вправо игрока
             const checkY:boolean = playerY + playerH > el.y && playerY < el.y + el.objHeight;
@@ -185,6 +186,7 @@ export class Player extends PhysicalObject{
         }
         if(this.objPos === "bottom"){
             this.canJump = false;
+            this.jumpCommand = false;
             this.fallMultiplier = this.fallMultiplier + 0.2
             this.y = this.y - (this.fallspeed * 100) * this.fallMultiplier;
         }
