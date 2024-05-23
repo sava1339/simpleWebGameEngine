@@ -54,8 +54,11 @@ export class PhysicalObject extends ObjectClass{
     }
 }
 export class Player extends PhysicalObject{
+    initialWeightJump: number = 0.2;
     weightJump: number = 0.2;
+    initialSpeed:number = 0.2;
     speed:number = 0.2;
+    initialFallspeed:number = 0.15;
     fallspeed:number = 0.15;
     move:boolean = true;
     jumpCommand:boolean = false;
@@ -64,17 +67,22 @@ export class Player extends PhysicalObject{
     fallMultiplier:number = 0.1;
     moveDirection:number = 0;
     speedMultiplier:number = 0.1;
+    solidXContact:boolean = false;
+    solidBottomYContact:boolean = false;
+    solidTopYContact:boolean = false;
+    rightMove:boolean = true;
+    leftMove:boolean = true;
     constructor(
         object:Object,
         physicalObj:PhysicalObjectInterface,
         player:PlayerInterface){
             super(object,physicalObj);
-            this.weightJump = player.weightJump;
-            this.speed = player.speed;
-            this.fallspeed = player.fallspeed
+            this.initialWeightJump = player.initialWeightJump;
+            this.initialFallspeed = player.initialFallspeed
+            this.initialSpeed = player.initialSpeed
         }
     controlJump(keyJump:string){
-        if(this.jumpLoop >= 9){
+        if(this.jumpLoop >= Math.floor(this.initialWeightJump * 40)){
             this.jumpCommand = false;
             this.canJump = false;
             this.jumpLoop = 0;
@@ -82,7 +90,10 @@ export class Player extends PhysicalObject{
         }
         if(this.jumpCommand && this.canJump){
             if(this.objPos === "bottom"){
-                this.y = this.y + this.weightJump * 150 - this.jumpLoop;
+                if(!this.solidTopYContact){
+                    this.weightJump = this.initialWeightJump * 150 - this.jumpLoop;
+                }
+                this.y = this.y + this.weightJump;
             }
             this.jumpLoop++;
             this.move = false;
@@ -100,14 +111,16 @@ export class Player extends PhysicalObject{
         }
         if(this.moveDirection != 0){
         this.speedMultiplier = this.speedMultiplier >= 10 ? 10 : this.speedMultiplier + this.speedMultiplier/10 +0.5
-        const moveSpeed = ((this.speed * 20 + (this.speedMultiplier / 2)) + (!this.jumpCommand && !this.canJump ? this.weightJump*25 : 0) + (this.jumpCommand && this.canJump ? this.weightJump*35 : 0))
-        if(this.moveDirection == 1){
-            this.mirror = true;
-            this.x = this.x + moveSpeed;
+        if(!this.solidXContact){
+            this.speed = (this.initialSpeed * 20 + (this.speedMultiplier / 2) + (!this.jumpCommand && !this.canJump ? this.initialWeightJump*25 : 0) + (this.jumpCommand && this.canJump ? this.initialWeightJump*35 : 0));
         }
-        if(this.moveDirection == 2){
+        if(this.moveDirection == 1 && this.rightMove){
+            this.mirror = true;
+            this.x = this.x + this.speed;
+        }
+        if(this.moveDirection == 2 && this.leftMove){
             this.mirror = false;
-            this.x = this.x - moveSpeed;
+            this.x = this.x - this.speed;
         }
         }
         document.addEventListener('keydown',(e)=>{
@@ -129,56 +142,83 @@ export class Player extends PhysicalObject{
     }
     
     physicEmulation(){
-        const playerX = this.x;
-        const playerY = this.y;
+        const playerLeftX = this.x;
+        const playerBottomY = this.y;
         const playerW = this.objWidth;
         const playerH = this.objHeight;
-        const playerRight = playerX + playerW;
-        arrayOfObject.physicalObject.map((el:PhysicalObject)=>{
+        const playerRightX = playerLeftX + playerW;
+        const playerTopY = playerBottomY + playerH;
+        if(!this.rightMove){
+            this.rightMove = true;
+        }
+        if(!this.leftMove){
+            this.leftMove = true;
+        }
+        arrayOfObject.physicalObject.forEach((el:PhysicalObject)=>{
             if(!el.objIsSolid){
                 return;
             }
             if(arrayOfObject.player == undefined){
                 return;
             }
-            //отталкивание вниз игрока
-            const checkX: boolean = playerX + playerW > el.x + 15 && playerX < el.x + el.objWidth - 15;
-            if(arrayOfObject.player.y <= +el.y + el.objHeight && (playerH + playerY >= +el.y + el.objHeight) && checkX){
-                arrayOfObject.player.y = +el.y + el.objHeight;
-                arrayOfObject.player.move = false;
-                this.canJump = true;
-                if(this.fallMultiplier >= 4.5){
-                console.log("сука больно!");
+            const objectLeftX = el.x;
+            const objectBottomY = el.y;
+            const objectW = el.objWidth;
+            const objectH = el.objHeight;
+            const objectRightX = objectLeftX + objectW;
+            const objectTopY = objectBottomY + objectH;
+
+            const checkX = playerRightX >= objectLeftX && playerLeftX <= objectRightX;
+            const checkY = playerTopY >= objectBottomY && playerBottomY <= objectTopY;
+
+            const futureBottom = playerBottomY - this.fallspeed;
+            if(objectTopY >= futureBottom && playerBottomY > objectBottomY && checkX){
+                this.fallspeed = playerBottomY - objectTopY;
+                if(this.fallspeed <= 0){
+                    this.fallspeed = 0;
+                    this.move = false;
                 }
                 this.fallMultiplier = 0;
-                return;
-            }
-            //отталкивание вверх игрока
-            if(arrayOfObject.player.y + playerH > +el.y && playerY < +el.y && checkX){
-                arrayOfObject.player.y = +el.y - playerH;
-                arrayOfObject.player.move = false;
                 this.canJump = true;
-                this.fallMultiplier = 0;
-                return;
-            }
-            //отталкивание вправо игрока
-            const checkY:boolean = playerY + playerH > el.y && playerY < el.y + el.objHeight;
-            const elCenterX:number = el.x + (el.objWidth / 2); 
-            if(playerRight > el.x && playerRight < elCenterX && checkY){
-                arrayOfObject.player.x = +el.x - playerW + 1;
-                if(this.moveDirection == 0 || this.moveDirection == 2){
-                    arrayOfObject.player.x = +el.x - playerW;
+                this.solidBottomYContact = true;
+                if(objectTopY > playerBottomY && playerBottomY - objectTopY < 0){
+                    this.y = objectTopY;
                 }
-                this.speedMultiplier = 0;
+            }else{
+                this.solidBottomYContact = false;
             }
-            //отталкивание влево игрока
-            if(playerX < el.x + el.objWidth && playerX > elCenterX && checkY){
-                arrayOfObject.player.x = +el.x + el.objWidth - 1;
-                if(this.moveDirection == 0 || this.moveDirection == 1){
-                    arrayOfObject.player.x = +el.x + el.objWidth;
-                }
-                this.speedMultiplier = 0;
+            const futureTop = playerTopY + this.weightJump;
+            if(objectBottomY <= futureTop && playerTopY < objectBottomY && checkX){
+                this.weightJump = objectBottomY - playerTopY;
+                this.jumpCommand = false;
+                this.canJump = false;
+                this.jumpLoop = 0;
+                this.move = true;
+                this.y = this.y + this.weightJump;
+                this.solidTopYContact = true;
+            }else{
+                this.solidTopYContact = false;
             }
+
+            const futureRight = playerRightX + this.speed;
+            if(objectLeftX <= futureRight && playerRightX < objectLeftX + 0.01 && checkY){
+                this.rightMove = false;
+                this.x = this.x + (objectLeftX - playerRightX) - 0.001;
+                this.speedMultiplier = 0;
+                this.solidXContact = true;
+            }else{
+                this.solidXContact = false;
+            }
+            const futureLeft = playerLeftX - this.speed;
+            if(objectRightX >= futureLeft && playerLeftX > objectRightX - 0.01 && checkY){
+                this.leftMove = false;
+                this.x = objectRightX + 0.001;
+                this.speedMultiplier = 0;
+                this.solidXContact = true;
+            }else{
+                this.solidXContact = false;
+            }
+            return;
         })
         if(!this.move){
             this.move = true;
@@ -187,8 +227,11 @@ export class Player extends PhysicalObject{
         if(this.objPos === "bottom"){
             this.canJump = false;
             this.jumpCommand = false;
-            this.fallMultiplier = this.fallMultiplier + 0.2
-            this.y = this.y - (this.fallspeed * 100) * this.fallMultiplier;
+            this.fallMultiplier = this.fallMultiplier + 0.2;
+            if(!this.solidBottomYContact){
+                this.fallspeed = (this.initialFallspeed * 100) * this.fallMultiplier;
+            }
+            this.y = this.y - this.fallspeed;
         }
     }
 }

@@ -22,9 +22,9 @@ export interface PhysicalObjectInterface {
     isSolid?:boolean
 }
 export interface PlayerInterface {
-    weightJump: number,
-    speed:number,
-    fallspeed:number,
+    initialWeightJump: number,
+    initialFallspeed:number,
+    initialSpeed:number
 }
 
 export interface ArrayOfObjectInterface {

@@ -25,7 +25,7 @@ arrayOfObject.backgroundObject.push(new BackgroundObject({
 }));
 
 arrayOfObject.physicalObject.push(new PhysicalObject({
-    objWidth: 2020,
+    objWidth: 1700,
     objHeight: 150,
     x: 0,
     y: 0,
@@ -53,22 +53,9 @@ arrayOfObject.physicalObject.push(new PhysicalObject({
 }));
 
 arrayOfObject.physicalObject.push(new PhysicalObject({
-    objWidth: 250,
-    objHeight: 50,
-    x: 500,
-    y: 400,
-    unitX: "px",
-    unitY: "px",
-    color: "#3b3b1a",
-    objPos: "bottom",
-    img:""
-},{
-    isSolid: true,
-}));
-arrayOfObject.physicalObject.push(new PhysicalObject({
-    objWidth: 75,
-    objHeight: 400,
-    x: 790,
+    objWidth: 100,
+    objHeight: 200,
+    x: 700,
     y: 150,
     unitX: "px",
     unitY: "px",
@@ -78,6 +65,35 @@ arrayOfObject.physicalObject.push(new PhysicalObject({
 },{
     isSolid: true,
 }));
+
+arrayOfObject.physicalObject.push(new PhysicalObject({
+    objWidth: 100,
+    objHeight: 400,
+    x: 900,
+    y: 150,
+    unitX: "px",
+    unitY: "px",
+    color: "#3b3b1a",
+    objPos: "bottom",
+    img:""
+},{
+    isSolid: true,
+}));
+
+arrayOfObject.physicalObject.push(new PhysicalObject({
+    objWidth: 100,
+    objHeight: 600,
+    x: 1200,
+    y: 150,
+    unitX: "px",
+    unitY: "px",
+    color: "#3b3b1a",
+    objPos: "bottom",
+    img:""
+},{
+    isSolid: true,
+}));
+
 
 arrayOfObject.physicalObject.push(new PhysicalObject({
     objWidth: 180,
@@ -97,7 +113,7 @@ arrayOfObject.physicalObject.push(new PhysicalObject({
 arrayOfObject.player = new Player({
     objWidth: 98,
     objHeight: 196,
-    x: 10,
+    x:400,
     y: 300,
     unitX: "px",
     unitY: "px",
@@ -107,9 +123,9 @@ arrayOfObject.player = new Player({
 },{
     isSolid:true
 },{
-    weightJump: 0.2,
-    speed: 0.3,
-    fallspeed:0.1
+    initialWeightJump: 0.2,
+    initialSpeed: 0.3,
+    initialFallspeed:0.1
 });
 
 export default arrayOfObject;

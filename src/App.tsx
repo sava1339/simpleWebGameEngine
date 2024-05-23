@@ -7,13 +7,13 @@ function App() {
     if(arrayOfObject.player == undefined){
       return;
     }
-    arrayOfObject.player.speed = +e.target.value;
+    arrayOfObject.player.initialSpeed = +e.target.value;
   }
   const customJumpInputHandler = (e:React.ChangeEvent<HTMLInputElement>) =>{
     if(arrayOfObject.player == undefined){
       return;
     }
-    arrayOfObject.player.weightJump = +e.target.value;
+    arrayOfObject.player.initialWeightJump = +e.target.value;
   }
   return (
     <div className='main relative border-8 border-gray-900'>
